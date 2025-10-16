@@ -1,0 +1,581 @@
+import React, { useState, useEffect } from 'react';
+import { customerService } from '../services/customerService';
+import { Customer, CreateCustomer, CompanyType, UserProfile } from '../types';
+import { useAuth } from '../contexts/AuthContext';
+import Header from '../components/Header';
+import CustomerComments from '../components/CustomerComments';
+import './Customers.css';
+import './Auth.css';
+
+const Customers: React.FC = () => {
+  const { user } = useAuth();
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [formData, setFormData] = useState<CreateCustomer>({
+    cnpj: '',
+    razaoSocial: '',
+    ativo: true,
+    tipo: CompanyType.MEI,
+    faturamentoAnual: 0,
+    nomeContato: '',
+    emailContato: '',
+    telefoneContato: '',
+    valorHonorario: 0
+  });
+
+  useEffect(() => {
+    loadCustomers();
+  }, []);
+
+  // Filtrar clientes quando o termo de busca mudar
+  useEffect(() => {
+    if (searchTerm.trim() === '') {
+      setFilteredCustomers(customers);
+    } else {
+      const filtered = customers.filter(customer =>
+        customer.razaoSocial.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.nomeContato.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.cnpj.includes(searchTerm)
+      );
+      setFilteredCustomers(filtered);
+    }
+  }, [searchTerm, customers]);
+
+  const loadCustomers = async () => {
+    try {
+      setLoading(true);
+      setError(''); // Limpar erro anterior
+      const data = await customerService.getAll();
+      setCustomers(data);
+      setFilteredCustomers(data); // Inicializar lista filtrada
+    } catch (err: any) {
+      console.error('Erro ao carregar clientes:', err);
+      
+      let errorMessage = 'Erro ao carregar clientes';
+      if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        } else if (err.response.data.title) {
+          errorMessage = err.response.data.title;
+        } else if (err.response.data.message) {
+          errorMessage = err.response.data.message;
+        }
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validações básicas
+    if (!formData.cnpj.trim()) {
+      setError('CNPJ é obrigatório');
+      return;
+    }
+    
+    if (!formData.razaoSocial.trim()) {
+      setError('Razão Social é obrigatória');
+      return;
+    }
+    
+    if (!formData.nomeContato.trim()) {
+      setError('Nome do contato é obrigatório');
+      return;
+    }
+    
+    if (!formData.emailContato.trim()) {
+      setError('Email do contato é obrigatório');
+      return;
+    }
+    
+    setError(''); // Limpar erros anteriores
+    setSuccessMessage(''); // Limpar mensagem de sucesso anterior
+    
+    try {
+      if (editingCustomer) {
+        await customerService.update(editingCustomer.id, formData);
+        setSuccessMessage('Cliente atualizado com sucesso!');
+      } else {
+        await customerService.create(formData);
+        setSuccessMessage('Cliente cadastrado com sucesso!');
+      }
+      
+      // Recarregar a lista de clientes
+      await loadCustomers();
+      
+      // Fechar o modal
+      closeModal();
+      
+      // Limpar a mensagem de sucesso após 3 segundos
+      setTimeout(() => setSuccessMessage(''), 3000);
+      
+    } catch (err: any) {
+      console.error('Erro ao salvar cliente:', err);
+      
+      // Tratamento seguro de erro
+      let errorMessage = 'Erro ao salvar cliente';
+      if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        } else if (err.response.data.title) {
+          errorMessage = err.response.data.title;
+        } else if (err.response.data.message) {
+          errorMessage = err.response.data.message;
+        } else if (err.response.data.errors) {
+          // Se há erros de validação, combine-os
+          const validationErrors = Object.values(err.response.data.errors).flat();
+          errorMessage = validationErrors.join('. ');
+        }
+      }
+      
+      setError(errorMessage);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    // Verificar se o usuário é administrador
+    if (user?.perfil !== UserProfile.Administrador) {
+      setError('Apenas administradores podem excluir clientes.');
+      return;
+    }
+
+    if (window.confirm('Tem certeza que deseja excluir este cliente?')) {
+      try {
+        await customerService.delete(id);
+        await loadCustomers();
+      } catch (err: any) {
+        console.error('Erro ao excluir cliente:', err);
+        
+        let errorMessage = 'Erro ao excluir cliente';
+        if (err.response?.data) {
+          if (typeof err.response.data === 'string') {
+            errorMessage = err.response.data;
+          } else if (err.response.data.title) {
+            errorMessage = err.response.data.title;
+          } else if (err.response.data.message) {
+            errorMessage = err.response.data.message;
+          }
+        }
+        
+        setError(errorMessage);
+      }
+    }
+  };
+
+  const openModal = (customer?: Customer) => {
+    if (customer) {
+      setEditingCustomer(customer);
+      setFormData({
+        cnpj: customer.cnpj,
+        razaoSocial: customer.razaoSocial,
+        ativo: customer.ativo,
+        tipo: customer.tipo,
+        faturamentoAnual: customer.faturamentoAnual,
+        nomeContato: customer.nomeContato,
+        emailContato: customer.emailContato,
+        telefoneContato: customer.telefoneContato,
+        valorHonorario: customer.valorHonorario
+      });
+    } else {
+      setEditingCustomer(null);
+      setFormData({
+        cnpj: '',
+        razaoSocial: '',
+        ativo: true,
+        tipo: CompanyType.MEI,
+        faturamentoAnual: 0,
+        nomeContato: '',
+        emailContato: '',
+        telefoneContato: '',
+        valorHonorario: 0
+      });
+    }
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditingCustomer(null);
+    setError('');
+    setSuccessMessage('');
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' 
+        ? (e.target as HTMLInputElement).checked
+        : type === 'number' 
+          ? parseFloat(value) || 0
+          : name === 'tipo'
+            ? value as CompanyType
+            : value
+    }));
+  };
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
+  };
+
+  const getCompanyTypeLabel = (type: CompanyType) => {
+    switch (type) {
+      case CompanyType.MEI: return 'MEI';
+      case CompanyType.Simples: return 'Simples Nacional';
+      case CompanyType.LucroPresumido: return 'Lucro Presumido';
+      case CompanyType.LucroReal: return 'Lucro Real';
+      default: return type;
+    }
+  };
+
+  const clearFilter = () => {
+    setSearchTerm('');
+  };
+
+  const openCommentsModal = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setIsCommentsModalOpen(true);
+  };
+
+  const closeCommentsModal = () => {
+    setIsCommentsModalOpen(false);
+    setSelectedCustomer(null);
+  };
+
+  if (loading) return <div>Carregando...</div>;
+
+  return (
+    <div>
+      <Header />
+      <div className="customers-container">
+        <div className="customers-header">
+          <h2>Clientes</h2>
+          <button className="add-btn" onClick={() => openModal()}>
+            Adicionar Cliente
+          </button>
+        </div>
+
+        {/* Campo de Pesquisa */}
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Buscar por nome da empresa, contato ou CNPJ..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          {searchTerm && (
+            <button onClick={clearFilter} className="clear-search-btn">
+              Limpar
+            </button>
+          )}
+        </div>
+
+        {error && <div className="error-message">{typeof error === 'string' ? error : JSON.stringify(error)}</div>}
+        {successMessage && <div className="success-message">{successMessage}</div>}
+
+        {filteredCustomers.length === 0 && !loading && (
+          <div className="no-results">
+            {searchTerm ? 
+              `Nenhum cliente encontrado para "${searchTerm}"` : 
+              'Nenhum cliente cadastrado'
+            }
+          </div>
+        )}
+
+        {/* Visualização Desktop - Tabela */}
+        {filteredCustomers.length > 0 && (
+          <div className="customers-table desktop-view">
+            <table>
+              <thead>
+                <tr>
+                  <th>CNPJ</th>
+                  <th>Razão Social</th>
+                  <th>Tipo</th>
+                  <th>Contato</th>
+                  <th>Faturamento Anual</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredCustomers.map((customer) => (
+                <tr key={customer.id}>
+                  <td>{customer.cnpj}</td>
+                  <td>{customer.razaoSocial}</td>
+                  <td>{getCompanyTypeLabel(customer.tipo)}</td>
+                  <td>
+                    <div>
+                      <strong>{customer.nomeContato}</strong><br />
+                      <small>{customer.emailContato}</small><br />
+                      <small>{customer.telefoneContato}</small>
+                    </div>
+                  </td>
+                  <td>{formatCurrency(customer.faturamentoAnual)}</td>
+                  <td>
+                    <span className={`status ${customer.ativo ? 'active' : 'inactive'}`}>
+                      {customer.ativo ? 'Ativo' : 'Inativo'}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="action-buttons">
+                      <button
+                        className="comments-btn"
+                        onClick={() => openCommentsModal(customer)}
+                      >
+                        Comentários
+                      </button>
+                      <button
+                        className="edit-btn"
+                        onClick={() => openModal(customer)}
+                      >
+                        Editar
+                      </button>
+                      {user?.perfil === UserProfile.Administrador && (
+                        <button
+                          className="delete-btn"
+                          onClick={() => handleDelete(customer.id)}
+                        >
+                          Excluir
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        )}
+
+        {/* Visualização Mobile - Cards */}
+        {filteredCustomers.length > 0 && (
+          <div className="customers-cards mobile-view">
+            {filteredCustomers.map((customer) => (
+            <div key={customer.id} className="customer-card">
+              <div className="card-header">
+                <h3 className="card-title">{customer.razaoSocial}</h3>
+                <span className={`status ${customer.ativo ? 'active' : 'inactive'}`}>
+                  {customer.ativo ? 'Ativo' : 'Inativo'}
+                </span>
+              </div>
+              
+              <div className="card-content">
+                <div className="card-field">
+                  <label>CNPJ:</label>
+                  <span>{customer.cnpj}</span>
+                </div>
+                
+                <div className="card-field">
+                  <label>Tipo:</label>
+                  <span>{getCompanyTypeLabel(customer.tipo)}</span>
+                </div>
+                
+                <div className="card-field">
+                  <label>Contato:</label>
+                  <div className="contact-info">
+                    <strong>{customer.nomeContato}</strong>
+                    <span>{customer.emailContato}</span>
+                    <span>{customer.telefoneContato}</span>
+                  </div>
+                </div>
+                
+                <div className="card-field">
+                  <label>Faturamento Anual:</label>
+                  <span className="faturamento">{formatCurrency(customer.faturamentoAnual)}</span>
+                </div>
+              </div>
+              
+              <div className="card-actions">
+                <button
+                  className="edit-btn"
+                  onClick={() => openModal(customer)}
+                >
+                  Editar
+                </button>
+                <button
+                  className="comments-btn"
+                  onClick={() => openCommentsModal(customer)}
+                >
+                  Comentários
+                </button>
+                {user?.perfil === UserProfile.Administrador && (
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDelete(customer.id)}
+                  >
+                    Excluir
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+        )}
+
+        {isModalOpen && (
+          <div className="modal-overlay" onClick={closeModal}>
+            <div className="modal large-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>{editingCustomer ? 'Editar Cliente' : 'Novo Cliente'}</h3>
+                <button className="close-btn" onClick={closeModal}>×</button>
+              </div>
+              <form onSubmit={handleSubmit}>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>CNPJ:</label>
+                    <input
+                      type="text"
+                      name="cnpj"
+                      value={formData.cnpj}
+                      onChange={handleInputChange}
+                      placeholder="00.000.000/0000-00"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Razão Social:</label>
+                    <input
+                      type="text"
+                      name="razaoSocial"
+                      value={formData.razaoSocial}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Tipo:</label>
+                    <select
+                      name="tipo"
+                      value={formData.tipo}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option value={CompanyType.MEI}>MEI</option>
+                      <option value={CompanyType.Simples}>Simples Nacional</option>
+                      <option value={CompanyType.LucroPresumido}>Lucro Presumido</option>
+                      <option value={CompanyType.LucroReal}>Lucro Real</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>
+                      <input
+                        type="checkbox"
+                        name="ativo"
+                        checked={formData.ativo}
+                        onChange={handleInputChange}
+                      />
+                      Cliente Ativo
+                    </label>
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Faturamento Anual (R$):</label>
+                    <input
+                      type="number"
+                      name="faturamentoAnual"
+                      value={formData.faturamentoAnual}
+                      onChange={handleInputChange}
+                      step="0.01"
+                      min="0"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Valor Honorário (R$):</label>
+                    <input
+                      type="number"
+                      name="valorHonorario"
+                      value={formData.valorHonorario}
+                      onChange={handleInputChange}
+                      step="0.01"
+                      min="0"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Nome do Contato:</label>
+                    <input
+                      type="text"
+                      name="nomeContato"
+                      value={formData.nomeContato}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Email do Contato:</label>
+                    <input
+                      type="email"
+                      name="emailContato"
+                      value={formData.emailContato}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Telefone do Contato:</label>
+                    <input
+                      type="text"
+                      name="telefoneContato"
+                      value={formData.telefoneContato}
+                      onChange={handleInputChange}
+                      placeholder="(11) 99999-9999"
+                    />
+                  </div>
+                </div>
+
+                <div className="modal-actions">
+                  <button type="button" className="cancel-btn" onClick={closeModal}>
+                    Cancelar
+                  </button>
+                  <button type="submit" className="save-btn">
+                    Salvar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de Comentários */}
+        {selectedCustomer && (
+          <CustomerComments
+            customerId={selectedCustomer.id}
+            customerName={selectedCustomer.razaoSocial}
+            isOpen={isCommentsModalOpen}
+            onClose={closeCommentsModal}
+          />
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Customers;

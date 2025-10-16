@@ -1,0 +1,193 @@
+.header {
+  background-color: #2c3e50;
+  color: white;
+  padding: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-nav {
+  display: flex;
+  gap: 2rem;
+  margin-left: 2rem;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link.active {
+  background-color: #DB6838;
+}
+
+.header-logo {
+  height: 40px;
+  width: auto;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-badge {
+  background-color: #DB6838;
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+  text-transform: uppercase;
+}
+
+.logout-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.logout-btn:hover {
+  background-color: #c0392b;
+}
+
+/* ========================================
+   RESPONSIVIDADE DO HEADER
+======================================== */
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+    padding: 1rem;
+  }
+  
+  .header-left {
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.5rem;
+    order: 1;
+  }
+  
+  .header-nav {
+    margin-left: 0;
+    gap: 1rem;
+    order: 4;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .header-user {
+    order: 3;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .header-user .logout-btn {
+    order: -1;
+    padding: 0.5rem 1.5rem;
+    align-self: center;
+  }
+  
+  .header-title {
+    font-size: 1.25rem;
+  }
+  
+  .header-logo {
+    height: 35px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 0.75rem 0;
+  }
+  
+  .header-content {
+    gap: 1rem;
+    padding: 0.75rem;
+  }
+  
+  .header-left {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .header-nav {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  
+  .nav-link {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    display: block;
+    text-align: center;
+  }
+  
+  .header-title {
+    font-size: 1.1rem;
+  }
+  
+  .header-logo {
+    height: 30px;
+  }
+  
+  .header-user {
+    justify-content: center;
+    width: 100%;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .header-user .logout-btn {
+    padding: 0.75rem 1.5rem;
+    width: 100%;
+    max-width: 200px;
+    font-size: 1rem;
+    order: -1;
+  }
+  
+  .admin-badge {
+    margin-left: 0;
+    margin-top: 0.25rem;
+    display: block;
+  }
+}
