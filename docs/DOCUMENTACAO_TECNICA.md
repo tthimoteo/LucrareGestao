@@ -14,7 +14,7 @@ Este documento fornece informações técnicas detalhadas sobre a arquitetura, e
 
 ### **Fluxo de Dados**
 ```
-[Frontend React] ←→ [HTTP/JSON] ←→ [Backend .NET] ←→ [SQLite DB]
+[Frontend React] ←→ [HTTP/JSON] ←→ [Backend .NET] ←→ [PostgreSQL DB]
 ```
 
 ## 🔧 Estrutura Técnica Detalhada
@@ -125,29 +125,29 @@ api.interceptors.request.use((config) => {
 
 ## 💾 Banco de Dados
 
-### **Esquema SQLite**
+### **Esquema PostgreSQL**
 ```sql
 -- Tabela Users
 CREATE TABLE Users (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    Email TEXT NOT NULL UNIQUE,
+    Id SERIAL PRIMARY KEY,
+    Email VARCHAR(255) NOT NULL UNIQUE,
     PasswordHash TEXT NOT NULL,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Tabela Customers
 CREATE TABLE Customers (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    Cnpj TEXT NOT NULL,
-    RazaoSocial TEXT NOT NULL,
+    Id SERIAL PRIMARY KEY,
+    Cnpj VARCHAR(20) NOT NULL,
+    RazaoSocial VARCHAR(255) NOT NULL,
     Tipo INTEGER NOT NULL,
-    NomeContato TEXT NOT NULL,
-    EmailContato TEXT NOT NULL,
-    TelefoneContato TEXT NOT NULL,
+    NomeContato VARCHAR(255) NOT NULL,
+    EmailContato VARCHAR(255) NOT NULL,
+    TelefoneContato VARCHAR(20) NOT NULL,
     ValorHonorario DECIMAL(18,2) NOT NULL,
-    Ativo BOOLEAN NOT NULL DEFAULT 1,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    Ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 

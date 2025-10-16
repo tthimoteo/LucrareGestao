@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.Models;
 using backend.DTOs;
+using System.Security.Claims;
 
 namespace backend.Controllers
 {
@@ -194,24 +195,65 @@ namespace backend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(int id)
         {
-            // Verificar se o usuário é administrador
-            var userProfile = User.FindFirst("Perfil")?.Value;
-            if (userProfile != "Administrador")
+            try
             {
-                return Forbid("Apenas administradores podem excluir clientes.");
+                // Debug: Log de todos os claims do usuário
+                Console.WriteLine("=== DEBUG DELETE CUSTOMER ===");
+                Console.WriteLine($"Claims do usuário:");
+                foreach (var claim in User.Claims)
+                {
+                    Console.WriteLine($"  {claim.Type}: {claim.Value}");
+                }
+
+                // Obter o ID do usuário do token JWT
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return Unauthorized("Token inválido");
+                }
+
+                Console.WriteLine($"UserId extraído do token: {userId}");
+
+                // Buscar o usuário no banco para verificar o perfil
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return Unauthorized("Usuário não encontrado");
+                }
+
+                Console.WriteLine($"Usuário encontrado: {user.Username}, Perfil: {user.Perfil}");
+
+                // Verificar se o usuário é administrador
+                bool isAdmin = user.Perfil == UserProfile.Administrador;
+                
+                if (!isAdmin)
+                {
+                    Console.WriteLine($"Acesso negado. Perfil '{user.Perfil}' não é Administrador");
+                    return StatusCode(403, new { message = "Apenas administradores podem excluir clientes." });
+                }
+
+                Console.WriteLine("Usuário é administrador, prosseguindo com exclusão...");
+
+                var customer = await _context.Customers.FindAsync(id);
+
+                if (customer == null)
+                {
+                    return NotFound();
+                }
+
+                // O cascade delete está configurado na migração, então os comentários
+                // serão deletados automaticamente pelo banco de dados
+                _context.Customers.Remove(customer);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-
-            var customer = await _context.Customers.FindAsync(id);
-
-            if (customer == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                Console.WriteLine($"ERRO ao deletar cliente: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return StatusCode(500, $"Erro ao deletar cliente: {ex.Message}");
             }
-
-            _context.Customers.Remove(customer);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
     }
 }

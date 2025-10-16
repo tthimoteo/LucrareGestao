@@ -19,7 +19,7 @@ namespace backend.Models
         public int UserId { get; set; }
 
         [Required]
-        [Column("Comment", TypeName = "BLOB")]
+        [Column("Comment")]
         public string Texto { get; set; } = string.Empty;
 
         [Column("CriadoPor")]

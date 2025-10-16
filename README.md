@@ -34,7 +34,7 @@ Sistema completo de gerenciamento de clientes empresariais com autenticação JW
 ### Backend
 - **C# .NET 9** - Framework principal
 - **Entity Framework Core** - ORM para acesso ao banco
-- **SQLite** - Banco de dados
+- **PostgreSQL** - Banco de dados
 - **JWT Bearer Authentication** - Autenticação segura
 - **BCrypt** - Hash de senhas
 
@@ -124,7 +124,7 @@ O frontend estará disponível em: `http://localhost:3000`
 
 ## 📊 Banco de Dados
 
-O projeto utiliza **SQLite** com as seguintes tabelas:
+O projeto utiliza **PostgreSQL** com as seguintes tabelas:
 
 ### Users
 - Id (int, PK)
@@ -156,7 +156,7 @@ O projeto utiliza **SQLite** com as seguintes tabelas:
 
 ### Configuração da API
 As configurações principais estão em `backend/appsettings.json`:
-- String de conexão do SQLite
+- String de conexão do PostgreSQL
 - Configurações JWT (chave, issuer, audience)
 
 ### Configuração do Frontend

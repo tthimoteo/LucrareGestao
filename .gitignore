@@ -17,10 +17,13 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-# Database
+# Database (legacy SQLite files - not used anymore)
+# Note: Project now uses PostgreSQL on Render cloud
 *.db
 *.db-shm
 *.db-wal
+*.sqlite
+*.sqlite3
 
 # IDE
 .vscode/
@@ -47,6 +50,19 @@ coverage/
 
 # Dependency directories
 jspm_packages/
+
+# Migration and setup files (temporary)
+# PostgreSQL setup and migration files
+PostgreSQL_Setup.md
+MIGRACAO_RESUMO.md
+fix_comments_table.sql
+
+# Legacy SQLite utility scripts (not used anymore)
+ReadSQLite.ps1
+
+# Temporary files
+*.tmp
+*.temp
 
 # Optional npm cache directory
 .npm

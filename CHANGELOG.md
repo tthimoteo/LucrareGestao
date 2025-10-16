@@ -17,7 +17,7 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 - Campos empresariais específicos (CNPJ, Razão Social, Honorários)
 
 ### 🛠️ **Tecnologias Implementadas**
-- **Backend**: C# .NET 9, Entity Framework Core, SQLite, JWT, BCrypt
+- **Backend**: C# .NET 9, Entity Framework Core, PostgreSQL, JWT, BCrypt
 - **Frontend**: React 18, TypeScript, Axios, React Router
 - **Segurança**: Autenticação JWT, Hash de senhas, Validação de dados
 - **UI/UX**: Design responsivo, Cards mobile, Tema personalizado

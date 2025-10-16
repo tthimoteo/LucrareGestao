@@ -49,6 +49,28 @@ const Customers: React.FC = () => {
     }
   }, [searchTerm, customers]);
 
+  // Funções de formatação
+  const formatCNPJ = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+  };
+
+  const formatPhone = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    if (digits.length <= 10) {
+      return digits.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+    }
+    return digits.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+  };
+
+  const displayCNPJ = (cnpj: string) => {
+    return cnpj.length === 14 ? formatCNPJ(cnpj) : cnpj;
+  };
+
+  const displayPhone = (phone: string) => {
+    return phone.length >= 10 ? formatPhone(phone) : phone;
+  };
+
   const loadCustomers = async () => {
     try {
       setLoading(true);
@@ -87,6 +109,13 @@ const Customers: React.FC = () => {
       return;
     }
     
+    // Validação do CNPJ - deve ter exatamente 14 dígitos
+    const cnpjDigitsOnly = formData.cnpj.replace(/\D/g, '');
+    if (cnpjDigitsOnly.length !== 14) {
+      setError('CNPJ deve conter exatamente 14 dígitos');
+      return;
+    }
+    
     if (!formData.razaoSocial.trim()) {
       setError('Razão Social é obrigatória');
       return;
@@ -100,6 +129,22 @@ const Customers: React.FC = () => {
     if (!formData.emailContato.trim()) {
       setError('Email do contato é obrigatório');
       return;
+    }
+    
+    // Validação do email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.emailContato)) {
+      setError('Email do contato deve ter um formato válido');
+      return;
+    }
+    
+    // Validação do telefone - deve ter exatamente 11 dígitos se preenchido
+    if (formData.telefoneContato.trim()) {
+      const phoneDigitsOnly = formData.telefoneContato.replace(/\D/g, '');
+      if (phoneDigitsOnly.length !== 11) {
+        setError('Telefone deve conter exatamente 11 dígitos (incluindo DDD)');
+        return;
+      }
     }
     
     setError(''); // Limpar erros anteriores
@@ -216,15 +261,33 @@ const Customers: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
+    
+    let processedValue = value;
+
+    // Aplicar validações específicas por campo
+    if (name === 'cnpj') {
+      // Permitir apenas números e limitar a 14 dígitos
+      processedValue = value.replace(/\D/g, '').slice(0, 14);
+    } else if (name === 'telefoneContato') {
+      // Permitir apenas números e limitar a 11 dígitos
+      processedValue = value.replace(/\D/g, '').slice(0, 11);
+    } else if (name === 'emailContato') {
+      // Validação básica de email: verificar se contém @ e não permitir espaços
+      if (value.includes(' ')) {
+        return; // Não permitir espaços no email
+      }
+      processedValue = value.trim();
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' 
         ? (e.target as HTMLInputElement).checked
         : type === 'number' 
-          ? parseFloat(value) || 0
+          ? parseFloat(processedValue) || 0
           : name === 'tipo'
-            ? value as CompanyType
-            : value
+            ? processedValue as CompanyType
+            : processedValue
     }));
   };
 
@@ -444,9 +507,10 @@ const Customers: React.FC = () => {
                     <input
                       type="text"
                       name="cnpj"
-                      value={formData.cnpj}
+                      value={displayCNPJ(formData.cnpj)}
                       onChange={handleInputChange}
                       placeholder="00.000.000/0000-00"
+                      maxLength={18}
                       required
                     />
                   </div>
@@ -533,6 +597,9 @@ const Customers: React.FC = () => {
                       name="emailContato"
                       value={formData.emailContato}
                       onChange={handleInputChange}
+                      placeholder="exemplo@email.com"
+                      pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
+                      title="Digite um email válido"
                       required
                     />
                   </div>
@@ -544,9 +611,10 @@ const Customers: React.FC = () => {
                     <input
                       type="text"
                       name="telefoneContato"
-                      value={formData.telefoneContato}
+                      value={displayPhone(formData.telefoneContato)}
                       onChange={handleInputChange}
                       placeholder="(11) 99999-9999"
+                      maxLength={15}
                     />
                   </div>
                 </div>

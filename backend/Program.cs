@@ -18,12 +18,7 @@ builder.Services.AddOpenApi();
 
 // Entity Framework
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"), 
-        sqliteOptions =>
-        {
-            // Desabilitar foreign keys para resolver conflitos
-            sqliteOptions.CommandTimeout(30);
-        }));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
