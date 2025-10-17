@@ -23,25 +23,37 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CustomerDto>>> GetCustomers()
         {
-            var customers = await _context.Customers
-                .Select(c => new CustomerDto
-                {
-                    Id = c.Id,
-                    CNPJ = c.CNPJ,
-                    RazaoSocial = c.RazaoSocial,
-                    Ativo = c.Ativo,
-                    Tipo = c.Tipo,
-                    FaturamentoAnual = c.FaturamentoAnual,
-                    NomeContato = c.NomeContato,
-                    EmailContato = c.EmailContato,
-                    TelefoneContato = c.TelefoneContato,
-                    ValorHonorario = c.ValorHonorario,
-                    CreatedAt = c.CreatedAt,
-                    UpdatedAt = c.UpdatedAt
-                })
-                .ToListAsync();
+            try
+            {
+                Console.WriteLine("Iniciando busca de clientes...");
+                
+                var customers = await _context.Customers
+                    .Select(c => new CustomerDto
+                    {
+                        Id = c.Id,
+                        CNPJ = c.CNPJ,
+                        RazaoSocial = c.RazaoSocial,
+                        Ativo = c.Ativo,
+                        Tipo = c.Tipo,
+                        FaturamentoAnual = c.FaturamentoAnual,
+                        NomeContato = c.NomeContato,
+                        EmailContato = c.EmailContato,
+                        TelefoneContato = c.TelefoneContato,
+                        ValorHonorario = c.ValorHonorario,
+                        CreatedAt = c.CreatedAt,
+                        UpdatedAt = c.UpdatedAt
+                    })
+                    .ToListAsync();
 
-            return Ok(customers);
+                Console.WriteLine($"Encontrados {customers.Count} clientes");
+                return Ok(customers);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao buscar clientes: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return StatusCode(500, new { message = "Erro interno do servidor", details = ex.Message });
+            }
         }
 
         [HttpPost("test")]
