@@ -496,7 +496,7 @@ const Customers: React.FC = () => {
                 <h3>{editingCustomer ? 'Editar Cliente' : 'Novo Cliente'}</h3>
                 <button className="close-btn" onClick={closeModal}>×</button>
               </div>
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} noValidate>
                 <div className="form-row">
                   <div className="form-group">
                     <label>CNPJ:</label>
@@ -594,7 +594,6 @@ const Customers: React.FC = () => {
                       value={formData.emailContato || ''}
                       onChange={handleInputChange}
                       placeholder="exemplo@email.com (opcional)"
-                      pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
                       title="Digite um email válido"
                     />
                   </div>
