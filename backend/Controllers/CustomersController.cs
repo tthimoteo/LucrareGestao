@@ -35,11 +35,11 @@ namespace backend.Controllers
                         RazaoSocial = c.RazaoSocial,
                         Ativo = c.Ativo,
                         Tipo = c.Tipo,
-                        FaturamentoAnual = c.FaturamentoAnual,
+                        FaturamentoAnual = c.FaturamentoAnual ?? 0m,
                         NomeContato = c.NomeContato,
                         EmailContato = c.EmailContato,
                         TelefoneContato = c.TelefoneContato,
-                        ValorHonorario = c.ValorHonorario,
+                        ValorHonorario = c.ValorHonorario ?? 0m,
                         CreatedAt = c.CreatedAt,
                         UpdatedAt = c.UpdatedAt
                     })

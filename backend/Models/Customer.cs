@@ -21,7 +21,7 @@ namespace backend.Models
         public CompanyType Tipo { get; set; }
         
         [Column(TypeName = "decimal(15,2)")]
-        public decimal FaturamentoAnual { get; set; }
+        public decimal? FaturamentoAnual { get; set; }
         
         [Required]
         [StringLength(100)]
@@ -36,7 +36,7 @@ namespace backend.Models
         public string TelefoneContato { get; set; } = string.Empty;
         
         [Column(TypeName = "decimal(10,2)")]
-        public decimal ValorHonorario { get; set; }
+        public decimal? ValorHonorario { get; set; }
         
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         
