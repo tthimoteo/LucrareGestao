@@ -36,9 +36,9 @@ export const customerService = {
       ativo: customer.ativo,
       tipo: customer.tipo, // Enum será serializado automaticamente
       faturamentoAnual: Number(customer.faturamentoAnual) || 0,
-      nomeContato: customer.nomeContato.trim(),
-      emailContato: customer.emailContato.trim(),
-      telefoneContato: customer.telefoneContato.trim(),
+      nomeContato: customer.nomeContato ? customer.nomeContato.trim() : null,
+      emailContato: customer.emailContato ? customer.emailContato.trim() : null,
+      telefoneContato: customer.telefoneContato ? customer.telefoneContato.trim() : null,
       valorHonorario: Number(customer.valorHonorario) || 0
     };
     
@@ -56,8 +56,22 @@ export const customerService = {
 
   async update(id: number, customer: Partial<CreateCustomer>): Promise<void> {
     console.log('Atualizando cliente:', id, customer);
+    
+    // Processar os dados da mesma forma que no create
+    const customerData = {
+      cnpj: customer.cnpj?.trim(),
+      razaoSocial: customer.razaoSocial?.trim(),
+      ativo: customer.ativo,
+      tipo: customer.tipo,
+      faturamentoAnual: customer.faturamentoAnual ? Number(customer.faturamentoAnual) : 0,
+      nomeContato: customer.nomeContato ? customer.nomeContato.trim() : null,
+      emailContato: customer.emailContato ? customer.emailContato.trim() : null,
+      telefoneContato: customer.telefoneContato ? customer.telefoneContato.trim() : null,
+      valorHonorario: customer.valorHonorario ? Number(customer.valorHonorario) : 0
+    };
+    
     try {
-      await api.put(`/customers/${id}`, customer);
+      await api.put(`/customers/${id}`, customerData);
       console.log('Cliente atualizado com sucesso');
     } catch (error) {
       console.error('Erro ao atualizar cliente:', error);

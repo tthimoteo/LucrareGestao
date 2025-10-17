@@ -281,7 +281,9 @@ const Customers: React.FC = () => {
           ? parseFloat(processedValue) || 0
           : name === 'tipo'
             ? processedValue as CompanyType
-            : processedValue
+            : ['nomeContato', 'emailContato', 'telefoneContato'].includes(name) && processedValue.trim() === ''
+              ? null
+              : processedValue
     }));
   };
 
