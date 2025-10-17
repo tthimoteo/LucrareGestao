@@ -31,7 +31,7 @@ namespace backend.Models
         public string? EmailContato { get; set; } = string.Empty;
         
         [StringLength(20)]
-        public string TelefoneContato { get; set; } = string.Empty;
+        public string? TelefoneContato { get; set; } = string.Empty;
         
         [Column(TypeName = "decimal(10,2)")]
         public decimal? ValorHonorario { get; set; }

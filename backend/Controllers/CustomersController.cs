@@ -126,13 +126,6 @@ namespace backend.Controllers
                 return BadRequest("CNPJ já está em uso");
             }
 
-            // Verificar se email já existe
-            if (await _context.Customers.AnyAsync(c => c.EmailContato == createCustomerDto.EmailContato))
-            {
-                Console.WriteLine($"Email {createCustomerDto.EmailContato} já existe");
-                return BadRequest("Email de contato já está em uso");
-            }
-
             var customer = new Customer
             {
                 CNPJ = createCustomerDto.CNPJ,
@@ -181,11 +174,6 @@ namespace backend.Controllers
             if (await _context.Customers.AnyAsync(c => c.CNPJ == updateCustomerDto.CNPJ && c.Id != id))
             {
                 return BadRequest("CNPJ já está em uso");
-            }
-
-            if (await _context.Customers.AnyAsync(c => c.EmailContato == updateCustomerDto.EmailContato && c.Id != id))
-            {
-                return BadRequest("Email de contato já está em uso");
             }
 
             customer.CNPJ = updateCustomerDto.CNPJ;

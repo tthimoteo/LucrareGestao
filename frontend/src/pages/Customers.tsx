@@ -63,11 +63,13 @@ const Customers: React.FC = () => {
     return digits.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
   };
 
-  const displayCNPJ = (cnpj: string) => {
+  const displayCNPJ = (cnpj: string | null) => {
+    if (!cnpj) return '';
     return cnpj.length === 14 ? formatCNPJ(cnpj) : cnpj;
   };
 
-  const displayPhone = (phone: string) => {
+  const displayPhone = (phone: string | null) => {
+    if (!phone) return '';
     return phone.length >= 10 ? formatPhone(phone) : phone;
   };
 
@@ -121,25 +123,17 @@ const Customers: React.FC = () => {
       return;
     }
     
-    if (!formData.nomeContato.trim()) {
-      setError('Nome do contato é obrigatório');
-      return;
-    }
-    
-    if (!formData.emailContato.trim()) {
-      setError('Email do contato é obrigatório');
-      return;
-    }
-    
-    // Validação do email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.emailContato)) {
-      setError('Email do contato deve ter um formato válido');
-      return;
+    // Validação do email apenas se preenchido
+    if (formData.emailContato && formData.emailContato.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.emailContato.trim())) {
+        setError('Email do contato deve ter um formato válido');
+        return;
+      }
     }
     
     // Validação do telefone - deve ter exatamente 11 dígitos se preenchido
-    if (formData.telefoneContato.trim()) {
+    if (formData.telefoneContato && formData.telefoneContato.trim()) {
       const phoneDigitsOnly = formData.telefoneContato.replace(/\D/g, '');
       if (phoneDigitsOnly.length !== 11) {
         setError('Telefone deve conter exatamente 11 dígitos (incluindo DDD)');
@@ -391,7 +385,7 @@ const Customers: React.FC = () => {
                       <small>{customer.telefoneContato}</small>
                     </div>
                   </td>
-                  <td>{formatCurrency(customer.faturamentoAnual)}</td>
+                  <td>{customer.faturamentoAnual ? formatCurrency(customer.faturamentoAnual) : 'R$ 0,00'}</td>
                   <td>
                     <span className={`status ${customer.ativo ? 'active' : 'inactive'}`}>
                       {customer.ativo ? 'Ativo' : 'Inativo'}
@@ -462,7 +456,7 @@ const Customers: React.FC = () => {
                 
                 <div className="card-field">
                   <label>Faturamento Anual:</label>
-                  <span className="faturamento">{formatCurrency(customer.faturamentoAnual)}</span>
+                  <span className="faturamento">{customer.faturamentoAnual ? formatCurrency(customer.faturamentoAnual) : 'R$ 0,00'}</span>
                 </div>
               </div>
               
@@ -560,7 +554,7 @@ const Customers: React.FC = () => {
                     <input
                       type="number"
                       name="faturamentoAnual"
-                      value={formData.faturamentoAnual}
+                      value={formData.faturamentoAnual || 0}
                       onChange={handleInputChange}
                       step="0.01"
                       min="0"
@@ -571,7 +565,7 @@ const Customers: React.FC = () => {
                     <input
                       type="number"
                       name="valorHonorario"
-                      value={formData.valorHonorario}
+                      value={formData.valorHonorario || 0}
                       onChange={handleInputChange}
                       step="0.01"
                       min="0"
@@ -585,9 +579,9 @@ const Customers: React.FC = () => {
                     <input
                       type="text"
                       name="nomeContato"
-                      value={formData.nomeContato}
+                      value={formData.nomeContato || ''}
                       onChange={handleInputChange}
-                      required
+                      placeholder="Nome do responsável (opcional)"
                     />
                   </div>
                   <div className="form-group">
@@ -595,12 +589,11 @@ const Customers: React.FC = () => {
                     <input
                       type="email"
                       name="emailContato"
-                      value={formData.emailContato}
+                      value={formData.emailContato || ''}
                       onChange={handleInputChange}
-                      placeholder="exemplo@email.com"
+                      placeholder="exemplo@email.com (opcional)"
                       pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
                       title="Digite um email válido"
-                      required
                     />
                   </div>
                 </div>

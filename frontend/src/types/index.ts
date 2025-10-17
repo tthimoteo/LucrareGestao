@@ -38,11 +38,11 @@ export interface Customer {
   razaoSocial: string;
   ativo: boolean;
   tipo: CompanyType;
-  faturamentoAnual: number;
-  nomeContato: string;
-  emailContato: string;
-  telefoneContato: string;
-  valorHonorario: number;
+  faturamentoAnual: number | null;
+  nomeContato: string | null;
+  emailContato: string | null;
+  telefoneContato: string | null;
+  valorHonorario: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -52,11 +52,11 @@ export interface CreateCustomer {
   razaoSocial: string;
   ativo: boolean;
   tipo: CompanyType;
-  faturamentoAnual: number;
-  nomeContato: string;
-  emailContato: string;
-  telefoneContato: string;
-  valorHonorario: number;
+  faturamentoAnual: number | null;
+  nomeContato: string | null;
+  emailContato: string | null;
+  telefoneContato: string | null;
+  valorHonorario: number | null;
 }
 
 export interface AuthResponse {
