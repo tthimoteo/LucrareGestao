@@ -23,14 +23,12 @@ namespace backend.Models
         [Column(TypeName = "decimal(15,2)")]
         public decimal? FaturamentoAnual { get; set; }
         
-        [Required]
         [StringLength(100)]
-        public string NomeContato { get; set; } = string.Empty;
+        public string? NomeContato { get; set; } = string.Empty;
         
-        [Required]
         [EmailAddress]
         [StringLength(100)]
-        public string EmailContato { get; set; } = string.Empty;
+        public string? EmailContato { get; set; } = string.Empty;
         
         [StringLength(20)]
         public string TelefoneContato { get; set; } = string.Empty;

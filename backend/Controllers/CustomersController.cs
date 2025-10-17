@@ -31,15 +31,15 @@ namespace backend.Controllers
                     .Select(c => new CustomerDto
                     {
                         Id = c.Id,
-                        CNPJ = c.CNPJ ?? "",
-                        RazaoSocial = c.RazaoSocial ?? "",
+                        CNPJ = c.CNPJ,
+                        RazaoSocial = c.RazaoSocial,
                         Ativo = c.Ativo,
                         Tipo = c.Tipo,
-                        FaturamentoAnual = c.FaturamentoAnual ?? 0m,
-                        NomeContato = c.NomeContato ?? "",
-                        EmailContato = c.EmailContato ?? "",
-                        TelefoneContato = c.TelefoneContato ?? "",
-                        ValorHonorario = c.ValorHonorario ?? 0m,
+                        FaturamentoAnual = c.FaturamentoAnual,
+                        NomeContato = c.NomeContato,
+                        EmailContato = c.EmailContato,
+                        TelefoneContato = c.TelefoneContato,
+                        ValorHonorario = c.ValorHonorario,
                         CreatedAt = c.CreatedAt,
                         UpdatedAt = c.UpdatedAt
                     })

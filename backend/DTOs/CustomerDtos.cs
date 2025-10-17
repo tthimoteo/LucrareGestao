@@ -10,11 +10,11 @@ namespace backend.DTOs
         public string RazaoSocial { get; set; } = string.Empty;
         public bool Ativo { get; set; }
         public CompanyType Tipo { get; set; }
-        public decimal FaturamentoAnual { get; set; }
-        public string NomeContato { get; set; } = string.Empty;
-        public string EmailContato { get; set; } = string.Empty;
-        public string TelefoneContato { get; set; } = string.Empty;
-        public decimal ValorHonorario { get; set; }
+        public decimal? FaturamentoAnual { get; set; }
+        public string? NomeContato { get; set; } = string.Empty;
+        public string? EmailContato { get; set; } = string.Empty;
+        public string? TelefoneContato { get; set; } = string.Empty;
+        public decimal? ValorHonorario { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }
