@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5129/api';
+// Detecta automaticamente o ambiente
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://lucraregestao.onrender.com/api'  // URL da sua API no Render
+  : 'http://localhost:5129/api';              // URL local para desenvolvimento
 
 const api = axios.create({
   baseURL: API_BASE_URL,
