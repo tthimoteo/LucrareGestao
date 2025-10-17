@@ -113,7 +113,10 @@ const Customers: React.FC = () => {
     });
     
     // Validações básicas
+    console.log('Iniciando validações...');
+    
     if (!formData.cnpj.trim()) {
+      console.log('Erro: CNPJ é obrigatório');
       setError('CNPJ é obrigatório');
       return;
     }
@@ -121,32 +124,45 @@ const Customers: React.FC = () => {
     // Validação do CNPJ - deve ter exatamente 14 dígitos
     const cnpjDigitsOnly = formData.cnpj.replace(/\D/g, '');
     if (cnpjDigitsOnly.length !== 14) {
+      console.log('Erro: CNPJ deve ter 14 dígitos, tem:', cnpjDigitsOnly.length);
       setError('CNPJ deve conter exatamente 14 dígitos');
       return;
     }
     
     if (!formData.razaoSocial.trim()) {
+      console.log('Erro: Razão Social é obrigatória');
       setError('Razão Social é obrigatória');
       return;
     }
     
+    console.log('Validações básicas aprovadas');
+    
     // Validação do email apenas se preenchido
     if (formData.emailContato && formData.emailContato.trim()) {
+      console.log('Validando email:', formData.emailContato);
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.emailContato.trim())) {
+        console.log('Erro: Email inválido:', formData.emailContato);
         setError('Email do contato deve ter um formato válido');
         return;
       }
+      console.log('Email válido');
     }
     
-    // Validação do telefone - deve ter exatamente 11 dígitos se preenchido
+    // Validação do telefone - deve ter 10 (fixo) ou 11 dígitos (celular) se preenchido
     if (formData.telefoneContato && formData.telefoneContato.trim()) {
+      console.log('Validando telefone:', formData.telefoneContato);
       const phoneDigitsOnly = formData.telefoneContato.replace(/\D/g, '');
-      if (phoneDigitsOnly.length !== 11) {
-        setError('Telefone deve conter exatamente 11 dígitos (incluindo DDD)');
+      console.log('Dígitos do telefone:', phoneDigitsOnly, 'Quantidade:', phoneDigitsOnly.length);
+      if (phoneDigitsOnly.length !== 10 && phoneDigitsOnly.length !== 11) {
+        console.log('Erro: Telefone com quantidade inválida de dígitos');
+        setError('Telefone deve conter 10 dígitos (fixo) ou 11 dígitos (celular), incluindo DDD');
         return;
       }
+      console.log('Telefone válido');
     }
+    
+    console.log('Todas as validações passaram, prosseguindo...');
     
     setError(''); // Limpar erros anteriores
     setSuccessMessage(''); // Limpar mensagem de sucesso anterior
