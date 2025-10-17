@@ -153,10 +153,15 @@ const Customers: React.FC = () => {
     
     try {
       if (editingCustomer) {
+        console.log('Iniciando atualização do cliente:', editingCustomer.id);
+        console.log('Dados para atualização:', formData);
         await customerService.update(editingCustomer.id, formData);
+        console.log('Cliente atualizado com sucesso!');
         setSuccessMessage('Cliente atualizado com sucesso!');
       } else {
+        console.log('Iniciando criação de cliente:', formData);
         await customerService.create(formData);
+        console.log('Cliente criado com sucesso!');
         setSuccessMessage('Cliente cadastrado com sucesso!');
       }
       
@@ -171,6 +176,9 @@ const Customers: React.FC = () => {
       
     } catch (err: any) {
       console.error('Erro ao salvar cliente:', err);
+      console.error('Response data:', err.response?.data);
+      console.error('Status:', err.response?.status);
+      console.error('Headers:', err.response?.headers);
       
       // Tratamento seguro de erro
       let errorMessage = 'Erro ao salvar cliente';
@@ -188,6 +196,7 @@ const Customers: React.FC = () => {
         }
       }
       
+      console.error('Mensagem de erro final:', errorMessage);
       setError(errorMessage);
     }
   };
@@ -503,6 +512,19 @@ const Customers: React.FC = () => {
                 <h3>{editingCustomer ? 'Editar Cliente' : 'Novo Cliente'}</h3>
                 <button className="close-btn" onClick={closeModal}>×</button>
               </div>
+              {error && (
+                <div className="error-message" style={{
+                  margin: '10px 20px', 
+                  padding: '10px', 
+                  backgroundColor: '#f8d7da', 
+                  color: '#721c24', 
+                  border: '1px solid #f5c6cb', 
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}>
+                  {typeof error === 'string' ? error : JSON.stringify(error)}
+                </div>
+              )}
               <form onSubmit={handleSubmit} noValidate>
                 <div className="form-row">
                   <div className="form-group">
