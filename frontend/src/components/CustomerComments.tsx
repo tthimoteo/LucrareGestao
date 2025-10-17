@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { UserProfile } from '../types';
 import commentService, { Comment, CreateCommentDto } from '../services/commentService';
@@ -28,13 +28,7 @@ const CustomerComments: React.FC<CustomerCommentsProps> = ({
   const { user } = useAuth();
   const isAdmin = user?.perfil === UserProfile.Administrador;
 
-  useEffect(() => {
-    if (isOpen && customerId) {
-      loadComments();
-    }
-  }, [isOpen, customerId]);
-
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -46,7 +40,13 @@ const CustomerComments: React.FC<CustomerCommentsProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [customerId]);
+
+  useEffect(() => {
+    if (isOpen && customerId) {
+      loadComments();
+    }
+  }, [isOpen, customerId, loadComments]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
