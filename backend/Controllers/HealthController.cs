@@ -9,7 +9,13 @@ namespace backend.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(new { status = "healthy", timestamp = DateTime.UtcNow });
+            return Ok(new { 
+                status = "healthy", 
+                service = "Lucrare Gestão API",
+                version = "1.0.0",
+                timestamp = DateTime.UtcNow,
+                environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"
+            });
         }
     }
 }

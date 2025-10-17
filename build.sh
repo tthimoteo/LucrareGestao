@@ -1,21 +1,22 @@
 #!/bin/bash
 set -e
 
-echo "Starting build process..."
+echo "🚀 Iniciando build para Render..."
 
-# Navigate to backend directory
+# Navegar para o diretório backend
 cd backend
 
-# Restore NuGet packages
-echo "Restoring packages..."
+# Restaurar pacotes NuGet
+echo "📦 Restaurando pacotes..."
 dotnet restore
 
-# Build the application
-echo "Building application..."
+# Fazer build da aplicação
+echo "🔨 Fazendo build..."
 dotnet build -c Release
 
-# Publish the application
-echo "Publishing application..."
-dotnet publish -c Release -o ./publish
+# Publicar aplicação
+echo "📋 Publicando aplicação..."
+dotnet publish -c Release -o ../publish
 
-echo "Build completed successfully!"
+echo "✅ Build concluído com sucesso!"
+echo "📁 Arquivos publicados em: ../publish"
