@@ -7,6 +7,10 @@ using backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure port for Render deployment
+var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 // Add services to the container.
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -45,10 +49,19 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+        if (builder.Environment.IsDevelopment())
+        {
+            policy.WithOrigins("http://localhost:3000")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
+        else
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        }
     });
 });
 
@@ -68,10 +81,23 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Create database if it doesn't exist
-using (var scope = app.Services.CreateScope())
+try
 {
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.EnsureCreated();
+    using (var scope = app.Services.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        Console.WriteLine("Ensuring database is created...");
+        context.Database.EnsureCreated();
+        Console.WriteLine("Database setup completed successfully.");
+    }
 }
+catch (Exception ex)
+{
+    Console.WriteLine($"Database setup failed: {ex.Message}");
+    Console.WriteLine($"Stack trace: {ex.StackTrace}");
+}
+
+Console.WriteLine($"Starting application on environment: {app.Environment.EnvironmentName}");
+Console.WriteLine($"Listening on port: {Environment.GetEnvironmentVariable("PORT") ?? "10000"}");
 
 app.Run();

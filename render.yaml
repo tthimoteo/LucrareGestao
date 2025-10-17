@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: lucrare-gestao-api
+    env: dotnet
+    buildCommand: dotnet publish backend/backend.csproj -c Release -o backend/publish
+    startCommand: dotnet backend/publish/backend.dll
+    plan: free
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://0.0.0.0:10000
+    healthCheckPath: /health
