@@ -17,6 +17,13 @@ Sistema completo de gerenciamento de clientes empresariais com autenticação JW
 - **Dados Financeiros**: Valor do Honorário
 - **Status**: Ativo/Inativo
 
+### ✅ **Sistema de Comentários**
+- **Comentários por Cliente**: Histórico de interações e observações
+- **Autoria Identificada**: Cada comentário registra o usuário autor
+- **Timezone Brasileiro**: Horários convertidos automaticamente para UTC-3
+- **CRUD Completo**: Criar, Editar e Excluir comentários
+- **Interface Modal**: Visualização organizada em modal dedicado
+
 ### ✅ **Interface Responsiva**
 - **Desktop**: Visualização em tabela completa
 - **Mobile**: Cards otimizados para touch
@@ -147,6 +154,19 @@ O projeto utiliza **PostgreSQL** com as seguintes tabelas:
 - CreatedAt (datetime)
 - UpdatedAt (datetime)
 
+### Comments
+- Id (int, PK)
+- CustomerId (int, FK para Customers)
+- UserId (int, FK para Users)
+- Texto (string)
+- CriadoPor (string)
+- DataCriacao (datetime)
+
+**Relacionamentos:**
+- Um Cliente pode ter múltiplos Comentários (1:N)
+- Um Usuário pode criar múltiplos Comentários (1:N)
+- Timezone: Todos os comentários são salvos em UTC e convertidos para horário brasileiro (UTC-3) na exibição
+
 ## 🔧 Configuração de Desenvolvimento
 
 ### VS Code Extensions Recomendadas
@@ -203,12 +223,21 @@ npm run build
 - Autenticação via JWT tokens
 - Validação de dados no frontend e backend
 - Proteção contra ataques CORS configurada
-- Validação de unicidade de email
+- Validação de unicidade de email e CNPJ
+
+### 🎯 **Validações de Formulário**
+- **CNPJ**: Limitado a 14 dígitos numéricos com máscara visual (00.000.000/0000-00)
+- **Telefone**: Limitado a 11 dígitos numéricos com formatação automática
+- **Email**: Validação de formato e bloqueio de caracteres inválidos
+- **Campos Obrigatórios**: Validação em tempo real e no submit
 
 ## 🌟 Próximas Melhorias
 
 - [ ] Paginação na lista de clientes
-- [ ] Busca e filtros
+- [x] ~~Busca e filtros~~ ✅ **Implementado**
+- [x] ~~Sistema de comentários~~ ✅ **Implementado**
+- [x] ~~Validações robustas de formulário~~ ✅ **Implementado**
+- [x] ~~Migração para PostgreSQL~~ ✅ **Implementado**
 - [ ] Upload de foto de perfil
 - [ ] Relatórios em PDF
 - [ ] Testes automatizados
