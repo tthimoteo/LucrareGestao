@@ -42,7 +42,7 @@ const Customers: React.FC = () => {
     } else {
       const filtered = customers.filter(customer =>
         customer.razaoSocial.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.nomeContato.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (customer.nomeContato && customer.nomeContato.toLowerCase().includes(searchTerm.toLowerCase())) ||
         customer.cnpj.includes(searchTerm)
       );
       setFilteredCustomers(filtered);
@@ -104,6 +104,13 @@ const Customers: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    console.log('FormData no submit:', formData);
+    console.log('Dados de contato:', {
+      nomeContato: formData.nomeContato,
+      emailContato: formData.emailContato,
+      telefoneContato: formData.telefoneContato
+    });
     
     // Validações básicas
     if (!formData.cnpj.trim()) {
@@ -507,7 +514,6 @@ const Customers: React.FC = () => {
                       onChange={handleInputChange}
                       placeholder="00.000.000/0000-00"
                       maxLength={18}
-                      required
                     />
                   </div>
                   <div className="form-group">
@@ -517,7 +523,6 @@ const Customers: React.FC = () => {
                       name="razaoSocial"
                       value={formData.razaoSocial}
                       onChange={handleInputChange}
-                      required
                     />
                   </div>
                 </div>
@@ -529,7 +534,6 @@ const Customers: React.FC = () => {
                       name="tipo"
                       value={formData.tipo}
                       onChange={handleInputChange}
-                      required
                     >
                       <option value={CompanyType.MEI}>MEI</option>
                       <option value={CompanyType.Simples}>Simples Nacional</option>
@@ -577,7 +581,7 @@ const Customers: React.FC = () => {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Nome do Contato:</label>
+                    <label>Nome do Contato (opcional):</label>
                     <input
                       type="text"
                       name="nomeContato"
@@ -587,14 +591,13 @@ const Customers: React.FC = () => {
                     />
                   </div>
                   <div className="form-group">
-                    <label>Email do Contato:</label>
+                    <label>Email do Contato (opcional):</label>
                     <input
-                      type="email"
+                      type="text"
                       name="emailContato"
                       value={formData.emailContato || ''}
                       onChange={handleInputChange}
                       placeholder="exemplo@email.com (opcional)"
-                      title="Digite um email válido"
                     />
                   </div>
                 </div>
